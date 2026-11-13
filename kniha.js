@@ -1,11 +1,21 @@
 const URL = 'https://script.google.com/macros/s/AKfycbykLfPeHZW23ttKW6OguNUnh5HCkDTFEELq1onFyOY7t7S0V1NkOmtFCHprdXeWlz52/exec';
 
+// Bezpečná funkce pro escapování HTML znaků a uvozovek
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // Odeslání nového vzkazu
 document.getElementById('f').onsubmit = e => {
   e.preventDefault();
   
   const btn = e.target.querySelector('button');
-  if (btn.disabled) return; // Zamezí vícenásobnému kliknutí
+  if (btn.disabled) return; 
   btn.disabled = true;
 
   fetch(URL, {
@@ -16,7 +26,6 @@ document.getElementById('f').onsubmit = e => {
       text: document.getElementById('t').value
     })
   }).then(() => {
-    // 3 sekundy pauza a pak obnovení stránky
     setTimeout(() => location.reload(), 3000);
   });
 };
@@ -26,6 +35,6 @@ fetch(URL)
   .then(res => res.json())
   .then(data => {
     document.getElementById('seznam').innerHTML = data.map(v => `
-      <p><b>${v.name}</b> <small>(${new Date(v.time).toLocaleString()})</small><br>${v.text}</p>
+      <p><b>${escapeHtml(v.name)}</b> <small>(${new Date(v.time).toLocaleString()})</small><br>${escapeHtml(v.text)}</p>
     `).join('');
   });
